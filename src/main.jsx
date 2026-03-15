@@ -8,7 +8,7 @@ import "@/index.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/prism-dodecahedron" replace />,
+    element: <PrismDodecahedronPage />,
   },
   {
     path: "/prism-dodecahedron",
@@ -16,7 +16,7 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <Navigate to="/prism-dodecahedron" replace />,
+    element: <Navigate to="/" replace />,
   },
 ]);
 
