@@ -1,5 +1,3 @@
-import bundledPlaylistManifest from "./bundledPlaylistManifest";
-
 const DEFAULT_LIBRARY_MANIFEST_PATH = "/music/playlist.json";
 
 function toTrackId(value, fallback) {
@@ -55,31 +53,24 @@ export function normalizePlaylistManifest(payload) {
 export async function loadBundledPlaylistManifest(
   manifestPath = DEFAULT_LIBRARY_MANIFEST_PATH
 ) {
-  let payload = bundledPlaylistManifest;
+  const response = await fetch(manifestPath, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
 
-  try {
-    const response = await fetch(manifestPath, {
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (response.status === 404) {
-      return {
-        status: "empty",
-        tracks: [],
-      };
-    }
-
-    if (!response.ok) {
-      throw new Error(`Unable to load playlist manifest (${response.status}).`);
-    }
-
-    payload = await response.json();
-  } catch {
-    payload = bundledPlaylistManifest;
+  if (response.status === 404) {
+    return {
+      status: "empty",
+      tracks: [],
+    };
   }
 
+  if (!response.ok) {
+    throw new Error(`Unable to load playlist manifest (${response.status}).`);
+  }
+
+  const payload = await response.json();
   const tracks = normalizePlaylistManifest(payload);
 
   return {

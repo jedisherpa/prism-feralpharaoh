@@ -617,7 +617,6 @@ export default function createPrismHeroScene(canvas, options = {}) {
     enableScroll = true,
     enablePointer = true,
     enableClickCycle = false,
-    disableShapeAssets = false,
     stageStyle = "hero",
     initialConfig = {},
     onModeChange,
@@ -1359,55 +1358,40 @@ export default function createPrismHeroScene(canvas, options = {}) {
       setModeInternal(nextMode, true, { manual: true });
     };
 
-    if (disableShapeAssets) {
-      assetState.status = "failed";
-      assetState.shapes = {};
-      assetState.availableShapes = new Set(getFallbackAvailableShapes());
+    loadPrismShapeAssets()
+      .then((shapes) => {
+        if (destroyed) return;
+        assetState.status = "ready";
+        assetState.shapes = shapes;
+        assetState.availableShapes = new Set(buildAvailableShapeList(shapes));
 
-      if (currentShape.value !== DEFAULT_SHAPE_ID) {
-        currentShape.value = DEFAULT_SHAPE_ID;
-        emitShape(DEFAULT_SHAPE_ID);
-        markExpressionCustom(true);
-      }
-
-      applyShapeGeometry(DEFAULT_SHAPE_ID);
-      emitShapeAssets();
-    } else {
-      loadPrismShapeAssets()
-        .then((shapes) => {
-          if (destroyed) return;
-          assetState.status = "ready";
-          assetState.shapes = shapes;
-          assetState.availableShapes = new Set(buildAvailableShapeList(shapes));
-
-          if (!assetState.availableShapes.has(currentShape.value)) {
-            const nextShape = DEFAULT_SHAPE_ID;
-            if (currentShape.value !== nextShape) {
-              currentShape.value = nextShape;
-              emitShape(nextShape);
-            }
-            markExpressionCustom(true);
+        if (!assetState.availableShapes.has(currentShape.value)) {
+          const nextShape = DEFAULT_SHAPE_ID;
+          if (currentShape.value !== nextShape) {
+            currentShape.value = nextShape;
+            emitShape(nextShape);
           }
+          markExpressionCustom(true);
+        }
 
-          applyShapeGeometry(currentShape.value);
-          emitShapeAssets();
-        })
-        .catch(() => {
-          if (destroyed) return;
-          assetState.status = "failed";
-          assetState.shapes = {};
-          assetState.availableShapes = new Set(getFallbackAvailableShapes());
+        applyShapeGeometry(currentShape.value);
+        emitShapeAssets();
+      })
+      .catch(() => {
+        if (destroyed) return;
+        assetState.status = "failed";
+        assetState.shapes = {};
+        assetState.availableShapes = new Set(getFallbackAvailableShapes());
 
-          if (currentShape.value !== DEFAULT_SHAPE_ID) {
-            currentShape.value = DEFAULT_SHAPE_ID;
-            emitShape(DEFAULT_SHAPE_ID);
-            markExpressionCustom(true);
-          }
+        if (currentShape.value !== DEFAULT_SHAPE_ID) {
+          currentShape.value = DEFAULT_SHAPE_ID;
+          emitShape(DEFAULT_SHAPE_ID);
+          markExpressionCustom(true);
+        }
 
-          applyShapeGeometry(DEFAULT_SHAPE_ID);
-          emitShapeAssets();
-        });
-    }
+        applyShapeGeometry(DEFAULT_SHAPE_ID);
+        emitShapeAssets();
+      });
 
     const onResize = () => {
       viewport.width = window.innerWidth;
@@ -2149,65 +2133,56 @@ export default function createPrismHeroScene(canvas, options = {}) {
         scaleBase * (1 + anticipationScale * 0.44),
         scaleBase * (1 - anticipationScale * 0.82)
       );
-      const minimalGlowScalar = minimalStage ? 0.46 : 1;
-      const minimalAuraScalar = minimalStage ? 0.34 : 1;
-      const minimalBloomScalar = minimalStage ? 0.42 : 1;
-      const minimalCoreScaleScalar = minimalStage ? 0.76 : 1;
-      const minimalAuraScaleScalar = minimalStage ? 0.72 : 1;
-
       prismMaterial.emissiveIntensity =
-        (0.08 +
-          lookMix * 0.02 +
-          pulse *
-            0.42 *
-            glowFactor *
-            MathUtils.lerp(
-              LOOK_STYLES.studio.emissiveBoost,
-              LOOK_STYLES.artifact.emissiveBoost,
-              lookMix
-            ) +
-          runtime.responseMix * 0.12 * glowFactor +
-          hoverMix * 0.08 +
-          transitionEnergy * 0.12 +
-          attentionMix * 0.05 +
-          anticipationTighten * 0.06 +
-          Math.max(settleWave, 0) * 0.04 +
-          musicPulse * 0.12 +
-          musicSparkle * 0.04) *
-        minimalGlowScalar;
+        0.08 +
+        lookMix * 0.02 +
+        pulse *
+          0.42 *
+          glowFactor *
+          MathUtils.lerp(
+            LOOK_STYLES.studio.emissiveBoost,
+            LOOK_STYLES.artifact.emissiveBoost,
+            lookMix
+          ) +
+        runtime.responseMix * 0.12 * glowFactor +
+        hoverMix * 0.08 +
+        transitionEnergy * 0.12 +
+        attentionMix * 0.05 +
+        anticipationTighten * 0.06 +
+        Math.max(settleWave, 0) * 0.04 +
+        musicPulse * 0.12 +
+        musicSparkle * 0.04;
       coreMaterial.opacity =
-        (runtime.coreOpacity *
+        runtime.coreOpacity *
           glowFactor *
           MathUtils.lerp(
             LOOK_STYLES.studio.coreOpacityBoost,
             LOOK_STYLES.artifact.coreOpacityBoost,
             lookMix
           ) +
-          runtime.responseMix * 0.06 +
-          hoverMix * 0.06 +
-          transitionEnergy * 0.08 +
-          attentionMix * 0.05 +
-          musicBass * 0.06 +
-          musicTransient * 0.05) *
-        minimalGlowScalar;
+        runtime.responseMix * 0.06 +
+        hoverMix * 0.06 +
+        transitionEnergy * 0.08 +
+        attentionMix * 0.05 +
+        musicBass * 0.06 +
+        musicTransient * 0.05;
       coreAuraMaterial.opacity =
-        (0.05 * glowFactor +
-          pulse *
-            0.14 *
-            glowFactor *
-            MathUtils.lerp(
-              LOOK_STYLES.studio.auraOpacityBoost,
-              LOOK_STYLES.artifact.auraOpacityBoost,
-              lookMix
-            ) +
-          runtime.responseMix * 0.08 +
-          hoverMix * 0.06 +
-          transitionEnergy * 0.1 +
-          attentionMix * 0.04 +
-          Math.max(settleWave, 0) * 0.06 +
-          musicPulse * 0.08 +
-          musicSparkle * 0.05) *
-        minimalAuraScalar;
+        0.05 * glowFactor +
+        pulse *
+          0.14 *
+          glowFactor *
+          MathUtils.lerp(
+            LOOK_STYLES.studio.auraOpacityBoost,
+            LOOK_STYLES.artifact.auraOpacityBoost,
+            lookMix
+          ) +
+        runtime.responseMix * 0.08 +
+        hoverMix * 0.06 +
+        transitionEnergy * 0.1 +
+        attentionMix * 0.04 +
+        Math.max(settleWave, 0) * 0.06 +
+        musicPulse * 0.08 +
+        musicSparkle * 0.05;
       coreMesh.scale.setScalar(
         coreBaseScale *
           (MathUtils.lerp(0.94, 1.16, lookMix) +
@@ -2218,8 +2193,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
             transitionEnergy * 0.08 +
             attentionMix * 0.05 +
             settleWave * 0.04 +
-            musicPulse * 0.07) *
-          minimalCoreScaleScalar
+            musicPulse * 0.07)
       );
       coreAura.scale.setScalar(
         auraBaseScale *
@@ -2232,8 +2206,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
             attentionMix * 0.06 +
             settleWave * 0.06 +
             musicPulse * 0.1 +
-            musicSparkle * 0.05) *
-          minimalAuraScaleScalar
+            musicSparkle * 0.05)
       );
       keyLight.intensity =
         (runtime.pointIntensity +
@@ -2292,17 +2265,16 @@ export default function createPrismHeroScene(canvas, options = {}) {
         ) *
         (1 + attentionMix * 0.14);
       bloomPass.strength =
-        (runtime.bloomStrength *
+        runtime.bloomStrength *
           configCurrent.bloom *
           MathUtils.lerp(0.88, 1.06, lookMix) +
-          pulse * 0.08 * glowFactor +
-          runtime.responseMix * 0.12 * glowFactor +
-          transitionEnergy * 0.1 * glowFactor +
-          anticipationTighten * 0.04 * glowFactor +
-          Math.max(settleWave, 0) * 0.03 * glowFactor +
-          musicPulse * 0.08 * glowFactor +
-          musicSparkle * 0.06 * glowFactor) *
-        minimalBloomScalar;
+        pulse * 0.08 * glowFactor +
+        runtime.responseMix * 0.12 * glowFactor +
+        transitionEnergy * 0.1 * glowFactor +
+        anticipationTighten * 0.04 * glowFactor +
+        Math.max(settleWave, 0) * 0.03 * glowFactor +
+        musicPulse * 0.08 * glowFactor +
+        musicSparkle * 0.06 * glowFactor;
 
       const spin = elapsed * preset.rotationSpeed * motionFactor * motionStyle;
       const manualSpinScale = reducedMotion ? 0.24 : 0.42;
