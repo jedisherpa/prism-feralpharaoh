@@ -839,33 +839,33 @@ export default function createPrismHeroScene(canvas, options = {}) {
     });
 
     const prismMaterial = new MeshPhysicalMaterial({
-      color: new Color("#FAFAFA"),
-      roughness: 0.035,
-      metalness: 0,
-      transmission: 1,
-      thickness: 2.2,
-      ior: 1.45,
-      clearcoat: 1,
-      clearcoatRoughness: 0.03,
-      specularIntensity: 1,
-      attenuationDistance: 2.8,
-      attenuationColor: new Color("#FFF2BA"),
+      color: new Color("#D6C28F"),
+      roughness: 0.22,
+      metalness: 0.9,
+      transmission: 0,
+      thickness: 0,
+      ior: 1.1,
+      clearcoat: 0.42,
+      clearcoatRoughness: 0.12,
+      specularIntensity: 0.68,
+      attenuationDistance: 0,
+      attenuationColor: new Color("#D6C28F"),
       emissive: new Color(COLORS.gold),
-      emissiveIntensity: 0.2,
-      envMapIntensity: 1.25,
+      emissiveIntensity: 0.06,
+      envMapIntensity: 1.72,
     });
 
     const prismFacetShellMaterial = new MeshPhysicalMaterial({
-      color: new Color("#F6EEE2"),
-      metalness: 0.08,
-      roughness: 0.18,
-      transmission: 0.16,
-      thickness: 1.1,
-      ior: 1.2,
-      clearcoat: 0.48,
-      clearcoatRoughness: 0.08,
+      color: new Color("#F1DFB3"),
+      metalness: 0.95,
+      roughness: 0.24,
+      transmission: 0,
+      thickness: 0,
+      ior: 1.1,
+      clearcoat: 0.18,
+      clearcoatRoughness: 0.14,
       transparent: true,
-      opacity: minimalStage ? 0.88 : 0.36,
+      opacity: minimalStage ? 0.94 : 0.62,
       side: DoubleSide,
       depthWrite: true,
       toneMapped: true,
@@ -873,27 +873,27 @@ export default function createPrismHeroScene(canvas, options = {}) {
       polygonOffset: true,
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1,
-      envMapIntensity: 0.72,
+      envMapIntensity: 1.08,
       emissive: new Color(COLORS.gold),
-      emissiveIntensity: 0.02,
+      emissiveIntensity: 0.01,
     });
 
     const innerShellMaterial = new MeshPhysicalMaterial({
-      color: new Color("#FFFFFF"),
-      roughness: 0.018,
-      metalness: 0,
-      transmission: 1,
-      thickness: 0.9,
-      ior: 1.1,
-      clearcoat: 1,
-      clearcoatRoughness: 0.02,
-      specularIntensity: 0.9,
+      color: new Color("#705734"),
+      roughness: 0.34,
+      metalness: 0.82,
+      transmission: 0,
+      thickness: 0,
+      ior: 1.05,
+      clearcoat: 0.12,
+      clearcoatRoughness: 0.22,
+      specularIntensity: 0.36,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.16,
       side: BackSide,
-      envMapIntensity: 0.9,
-      attenuationDistance: 1.4,
-      attenuationColor: new Color("#FFF4D2"),
+      envMapIntensity: 0.58,
+      attenuationDistance: 0,
+      attenuationColor: new Color("#705734"),
     });
 
     const prismBody = new Mesh(breakupTransform.geometry, prismMaterial);
@@ -1874,133 +1874,90 @@ export default function createPrismHeroScene(canvas, options = {}) {
       });
 
       prismMaterial.color.copy(tempColors.glass);
-      prismMaterial.attenuationColor.copy(tempColors.glassAttenuation);
-      prismMaterial.thickness = MathUtils.lerp(
-        LOOK_STYLES.studio.thickness,
-        LOOK_STYLES.artifact.thickness,
-        lookMix
-      );
-      prismMaterial.ior = MathUtils.lerp(
-        LOOK_STYLES.studio.ior,
-        LOOK_STYLES.artifact.ior,
-        lookMix
-      );
-      prismMaterial.attenuationDistance = MathUtils.lerp(
-        LOOK_STYLES.studio.attenuationDistance,
-        LOOK_STYLES.artifact.attenuationDistance,
-        lookMix
-      );
+      prismMaterial.color.lerp(tempColors.floor, minimalStage ? 0.42 : 0.28);
+      prismMaterial.color.lerp(runtime.stateColor, 0.08 + runtime.responseMix * 0.04);
+      prismMaterial.attenuationColor.copy(prismMaterial.color);
+      prismMaterial.transmission = 0;
+      prismMaterial.thickness = 0;
+      prismMaterial.ior = 1.1;
+      prismMaterial.attenuationDistance = 0;
+      prismMaterial.metalness = MathUtils.lerp(0.86, 0.97, reflectionMix);
       prismMaterial.specularIntensity =
-        MathUtils.lerp(0.94, 1.22, lookMix) +
-        hoverMix * 0.08 +
-        attentionMix * 0.05 +
-        musicSparkle * 0.06;
+        MathUtils.lerp(0.5, 0.76, lookMix) +
+        hoverMix * 0.05 +
+        attentionMix * 0.04 +
+        musicSparkle * 0.05;
 
       prismMaterial.roughness = MathUtils.lerp(
-        MathUtils.lerp(
-          LOOK_STYLES.studio.prismRoughnessMax,
-          LOOK_STYLES.artifact.prismRoughnessMax,
-          lookMix
-        ),
-        MathUtils.lerp(
-          LOOK_STYLES.studio.prismRoughnessMin,
-          LOOK_STYLES.artifact.prismRoughnessMin,
-          lookMix
-        ),
+        MathUtils.lerp(0.34, 0.26, lookMix),
+        MathUtils.lerp(0.16, 0.1, lookMix),
         reflectionMix
       );
       prismMaterial.envMapIntensity = MathUtils.lerp(
-        MathUtils.lerp(
-          LOOK_STYLES.studio.envMapMin,
-          LOOK_STYLES.artifact.envMapMin,
-          lookMix
-        ) * (minimalStage ? 0.95 : 1),
-        MathUtils.lerp(
-          LOOK_STYLES.studio.envMapMax,
-          LOOK_STYLES.artifact.envMapMax,
-          lookMix
-        ) * (minimalStage ? 0.92 : 0.82),
+        MathUtils.lerp(1.24, 1.48, lookMix) * (minimalStage ? 1.08 : 1),
+        MathUtils.lerp(1.92, 2.34, lookMix) * (minimalStage ? 1.04 : 0.94),
         reflectionMix
       );
+      prismMaterial.clearcoat = MathUtils.lerp(0.14, 0.36, reflectionMix);
       prismMaterial.clearcoatRoughness = MathUtils.lerp(
-        MathUtils.lerp(
-          LOOK_STYLES.studio.clearcoatRoughnessMax,
-          LOOK_STYLES.artifact.clearcoatRoughnessMax,
-          lookMix
-        ),
-        MathUtils.lerp(
-          LOOK_STYLES.studio.clearcoatRoughnessMin,
-          LOOK_STYLES.artifact.clearcoatRoughnessMin,
-          lookMix
-        ),
+        MathUtils.lerp(0.24, 0.18, lookMix),
+        MathUtils.lerp(0.09, 0.05, lookMix),
         reflectionMix
       );
       prismMaterial.emissive.copy(runtime.stateColor);
 
-      innerShellMaterial.color.copy(tempColors.inner);
-      innerShellMaterial.attenuationColor.copy(tempColors.innerAttenuation);
-      innerShellMaterial.thickness = MathUtils.lerp(0.7, 1.08, lookMix);
-      innerShellMaterial.roughness = MathUtils.lerp(0.008, 0.024, lookMix);
-      innerShellMaterial.ior = MathUtils.lerp(1.08, 1.16, lookMix);
+      innerShellMaterial.color.copy(tempColors.floor);
+      innerShellMaterial.color.lerp(runtime.stateColor, 0.08 + runtime.responseMix * 0.04);
+      innerShellMaterial.attenuationColor.copy(innerShellMaterial.color);
+      innerShellMaterial.transmission = 0;
+      innerShellMaterial.thickness = 0;
+      innerShellMaterial.metalness = MathUtils.lerp(0.72, 0.88, reflectionMix);
+      innerShellMaterial.roughness = MathUtils.lerp(0.38, 0.22, reflectionMix);
+      innerShellMaterial.ior = 1.05;
       innerShellMaterial.envMapIntensity = MathUtils.lerp(
-        MathUtils.lerp(
-          LOOK_STYLES.studio.innerEnvMapMin,
-          LOOK_STYLES.artifact.innerEnvMapMin,
-          lookMix
-        ),
-        MathUtils.lerp(
-          LOOK_STYLES.studio.innerEnvMapMax,
-          LOOK_STYLES.artifact.innerEnvMapMax,
-          lookMix
-        ),
+        MathUtils.lerp(0.32, 0.46, lookMix),
+        MathUtils.lerp(0.54, 0.82, lookMix),
         reflectionMix
       );
       innerShellMaterial.opacity =
-        MathUtils.lerp(
-          LOOK_STYLES.studio.innerOpacityBase,
-          LOOK_STYLES.artifact.innerOpacityBase,
-          lookMix
-        ) +
-        reflectionFactor *
-          MathUtils.lerp(
-            LOOK_STYLES.studio.innerOpacityReflection,
-            LOOK_STYLES.artifact.innerOpacityReflection,
-            lookMix
-          ) +
-        hoverMix * 0.04;
+        MathUtils.lerp(0.12, 0.18, lookMix) +
+        reflectionFactor * MathUtils.lerp(0.04, 0.08, lookMix) +
+        hoverMix * 0.02;
       if (minimalStage) {
-        innerShellMaterial.opacity *= 0.72;
+        innerShellMaterial.opacity *= 0.88;
       }
 
       prismFacetShellMaterial.color.copy(tempColors.glass);
-      prismFacetShellMaterial.color.lerp(tempColors.floor, minimalStage ? 0.18 : 0.1);
+      prismFacetShellMaterial.color.lerp(tempColors.floor, minimalStage ? 0.5 : 0.34);
+      prismFacetShellMaterial.color.lerp(runtime.stateColor, 0.05 + runtime.responseMix * 0.03);
       prismFacetShellMaterial.emissive.copy(tempColors.wire);
       prismFacetShellMaterial.emissiveIntensity =
-        (minimalStage ? 0.03 : 0.015) +
-        hoverMix * 0.03 +
-        runtime.responseMix * 0.035 +
-        Math.max(settleWave, 0) * 0.02;
+        (minimalStage ? 0.012 : 0.008) +
+        hoverMix * 0.018 +
+        runtime.responseMix * 0.02 +
+        Math.max(settleWave, 0) * 0.014;
+      prismFacetShellMaterial.metalness = MathUtils.lerp(0.9, 0.98, reflectionMix);
       prismFacetShellMaterial.roughness = MathUtils.lerp(
-        minimalStage ? 0.22 : 0.18,
-        minimalStage ? 0.12 : 0.09,
+        minimalStage ? 0.3 : 0.26,
+        minimalStage ? 0.14 : 0.12,
         reflectionMix
       );
-      prismFacetShellMaterial.clearcoat = MathUtils.lerp(0.34, 0.68, reflectionMix);
+      prismFacetShellMaterial.clearcoat = MathUtils.lerp(0.08, 0.18, reflectionMix);
       prismFacetShellMaterial.clearcoatRoughness = MathUtils.lerp(
-        0.12,
-        0.05,
+        0.18,
+        0.08,
         reflectionMix
       );
       prismFacetShellMaterial.opacity =
-        (minimalStage ? 0.78 : 0.28) +
-        hoverMix * 0.06 +
-        runtime.responseMix * 0.05 +
-        Math.max(settleWave, 0) * 0.03 +
-        musicPulse * 0.04;
-      prismFacetShellMaterial.transmission = minimalStage ? 0.08 : 0.14;
+        (minimalStage ? 0.94 : 0.62) +
+        hoverMix * 0.03 +
+        runtime.responseMix * 0.03 +
+        Math.max(settleWave, 0) * 0.02 +
+        musicPulse * 0.02;
+      prismFacetShellMaterial.transmission = 0;
       prismFacetShellMaterial.envMapIntensity = minimalStage
-        ? 0.58 + reflectionMix * 0.24
-        : 0.64 + reflectionMix * 0.34;
+        ? 1 + reflectionMix * 0.44
+        : 1.12 + reflectionMix * 0.52;
 
       wireframeMaterial.color.copy(tempColors.wire);
       wireframeMaterial.opacity =
@@ -2203,24 +2160,24 @@ export default function createPrismHeroScene(canvas, options = {}) {
         scaleBase * (1 - anticipationScale * 0.82)
       );
       prismMaterial.emissiveIntensity =
-        0.08 +
-        lookMix * 0.02 +
+        0.028 +
+        lookMix * 0.012 +
         pulse *
-          0.42 *
+          0.12 *
           glowFactor *
           MathUtils.lerp(
             LOOK_STYLES.studio.emissiveBoost,
             LOOK_STYLES.artifact.emissiveBoost,
             lookMix
           ) +
-        runtime.responseMix * 0.12 * glowFactor +
-        hoverMix * 0.08 +
-        transitionEnergy * 0.12 +
-        attentionMix * 0.05 +
-        anticipationTighten * 0.06 +
-        Math.max(settleWave, 0) * 0.04 +
-        musicPulse * 0.12 +
-        musicSparkle * 0.04;
+        runtime.responseMix * 0.05 * glowFactor +
+        hoverMix * 0.04 +
+        transitionEnergy * 0.06 +
+        attentionMix * 0.03 +
+        anticipationTighten * 0.03 +
+        Math.max(settleWave, 0) * 0.025 +
+        musicPulse * 0.05 +
+        musicSparkle * 0.015;
       coreMaterial.opacity =
         runtime.coreOpacity *
           glowFactor *
@@ -2236,7 +2193,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
         musicBass * 0.06 +
         musicTransient * 0.05;
       if (minimalStage) {
-        coreMaterial.opacity *= 0.52;
+        coreMaterial.opacity *= 0.18;
       }
       coreAuraMaterial.opacity =
         0.05 * glowFactor +
@@ -2256,7 +2213,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
         musicPulse * 0.08 +
         musicSparkle * 0.05;
       if (minimalStage) {
-        coreAuraMaterial.opacity *= 0.38;
+        coreAuraMaterial.opacity *= 0.12;
       }
       coreMesh.scale.setScalar(
         coreBaseScale *

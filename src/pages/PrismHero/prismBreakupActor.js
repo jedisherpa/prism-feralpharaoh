@@ -36,19 +36,20 @@ export function createPrismBreakupActor({ name, sourceObject, intensity = 1 }) {
   group.add(carrier);
 
   const surfaceMaterial = new MeshPhysicalMaterial({
-    color: "#f6eee2",
-    metalness: 0.08,
-    roughness: 0.16,
-    transmission: 0.18,
-    thickness: 1.1,
-    ior: 1.2,
-    clearcoat: 0.48,
-    clearcoatRoughness: 0.08,
+    color: "#d8c28f",
+    metalness: 0.92,
+    roughness: 0.24,
+    transmission: 0,
+    thickness: 0,
+    ior: 1.1,
+    clearcoat: 0.16,
+    clearcoatRoughness: 0.16,
     transparent: true,
-    opacity: 0.9,
+    opacity: 0.96,
     side: DoubleSide,
     depthWrite: true,
     toneMapped: true,
+    flatShading: true,
   });
 
   const edgeMaterial = new LineBasicMaterial({
@@ -127,13 +128,15 @@ export function createPrismBreakupActor({ name, sourceObject, intensity = 1 }) {
       );
 
       surfaceMaterial.color.copy(surfaceColor);
+      surfaceMaterial.color.lerp(coreColor, 0.08);
       surfaceMaterial.opacity = dimmed ? 0.14 : 0.96;
-      surfaceMaterial.roughness = MathUtils.lerp(0.2, 0.08, seamGlow);
-      surfaceMaterial.clearcoat = MathUtils.lerp(0.28, 0.82, seamGlow);
-      surfaceMaterial.clearcoatRoughness = MathUtils.lerp(0.1, 0.03, seamGlow);
+      surfaceMaterial.metalness = MathUtils.lerp(0.86, 0.98, seamGlow);
+      surfaceMaterial.roughness = MathUtils.lerp(0.28, 0.12, seamGlow);
+      surfaceMaterial.clearcoat = MathUtils.lerp(0.08, 0.22, seamGlow);
+      surfaceMaterial.clearcoatRoughness = MathUtils.lerp(0.18, 0.08, seamGlow);
       surfaceMaterial.emissive.copy(coreColor);
       surfaceMaterial.emissiveIntensity =
-        (dimmed ? 0.02 : 0.08) + seamGlow * (dimmed ? 0.04 : 0.18);
+        (dimmed ? 0.01 : 0.03) + seamGlow * (dimmed ? 0.02 : 0.08);
 
       edgeMaterial.opacity =
         ((dimmed ? 0.04 : 0.18) * seamGlow +
