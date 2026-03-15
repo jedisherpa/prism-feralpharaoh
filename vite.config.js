@@ -95,13 +95,6 @@ export default defineConfig({
         warn(warning);
       },
       output: {
-        // These settings ensure the primary JS and CSS file references are always index.{js,css}
-        // so we can SSR the index.html as text response from server/index.js without breaking references each build.
-        entryFileNames: 'index.js',
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'index.css') return `index.css`;
-          return assetInfo.name;
-        },
         manualChunks(id) {
           const localeMatch = id.match(/\/src\/locales\/([^/]+)\/common\.js$/);
           if (localeMatch) {
