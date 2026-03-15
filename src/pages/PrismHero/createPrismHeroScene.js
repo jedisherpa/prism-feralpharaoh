@@ -617,6 +617,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
     enableScroll = true,
     enablePointer = true,
     enableClickCycle = false,
+    disableShapeAssets = false,
     stageStyle = "hero",
     initialConfig = {},
     onModeChange,
@@ -1358,40 +1359,55 @@ export default function createPrismHeroScene(canvas, options = {}) {
       setModeInternal(nextMode, true, { manual: true });
     };
 
-    loadPrismShapeAssets()
-      .then((shapes) => {
-        if (destroyed) return;
-        assetState.status = "ready";
-        assetState.shapes = shapes;
-        assetState.availableShapes = new Set(buildAvailableShapeList(shapes));
+    if (disableShapeAssets) {
+      assetState.status = "failed";
+      assetState.shapes = {};
+      assetState.availableShapes = new Set(getFallbackAvailableShapes());
 
-        if (!assetState.availableShapes.has(currentShape.value)) {
-          const nextShape = DEFAULT_SHAPE_ID;
-          if (currentShape.value !== nextShape) {
-            currentShape.value = nextShape;
-            emitShape(nextShape);
+      if (currentShape.value !== DEFAULT_SHAPE_ID) {
+        currentShape.value = DEFAULT_SHAPE_ID;
+        emitShape(DEFAULT_SHAPE_ID);
+        markExpressionCustom(true);
+      }
+
+      applyShapeGeometry(DEFAULT_SHAPE_ID);
+      emitShapeAssets();
+    } else {
+      loadPrismShapeAssets()
+        .then((shapes) => {
+          if (destroyed) return;
+          assetState.status = "ready";
+          assetState.shapes = shapes;
+          assetState.availableShapes = new Set(buildAvailableShapeList(shapes));
+
+          if (!assetState.availableShapes.has(currentShape.value)) {
+            const nextShape = DEFAULT_SHAPE_ID;
+            if (currentShape.value !== nextShape) {
+              currentShape.value = nextShape;
+              emitShape(nextShape);
+            }
+            markExpressionCustom(true);
           }
-          markExpressionCustom(true);
-        }
 
-        applyShapeGeometry(currentShape.value);
-        emitShapeAssets();
-      })
-      .catch(() => {
-        if (destroyed) return;
-        assetState.status = "failed";
-        assetState.shapes = {};
-        assetState.availableShapes = new Set(getFallbackAvailableShapes());
+          applyShapeGeometry(currentShape.value);
+          emitShapeAssets();
+        })
+        .catch(() => {
+          if (destroyed) return;
+          assetState.status = "failed";
+          assetState.shapes = {};
+          assetState.availableShapes = new Set(getFallbackAvailableShapes());
 
-        if (currentShape.value !== DEFAULT_SHAPE_ID) {
-          currentShape.value = DEFAULT_SHAPE_ID;
-          emitShape(DEFAULT_SHAPE_ID);
-          markExpressionCustom(true);
-        }
+          if (currentShape.value !== DEFAULT_SHAPE_ID) {
+            currentShape.value = DEFAULT_SHAPE_ID;
+            emitShape(DEFAULT_SHAPE_ID);
+            markExpressionCustom(true);
+          }
 
-        applyShapeGeometry(DEFAULT_SHAPE_ID);
-        emitShapeAssets();
-      });
+          applyShapeGeometry(DEFAULT_SHAPE_ID);
+          emitShapeAssets();
+        });
+    }
 
     const onResize = () => {
       viewport.width = window.innerWidth;

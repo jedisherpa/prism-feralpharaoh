@@ -798,6 +798,7 @@ export default function PrismDodecahedronPage() {
       enableScroll: false,
       enablePointer: true,
       enableClickCycle: true,
+      disableShapeAssets: true,
       stageStyle: "minimal",
       initialConfig: {
         ...DEFAULT_TUNING,
