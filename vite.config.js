@@ -75,9 +75,7 @@ export default defineConfig({
         return deps.filter((dep) => {
           if (
             dep.includes("locales-global-") ||
-            dep.includes("locales-latin-") ||
-            dep.includes("onboarding-") ||
-            dep.includes("llm-selection-")
+            dep.includes("locales-latin-")
           ) {
             return false;
           }
@@ -132,17 +130,6 @@ export default defineConfig({
 
           if (id.includes("/src/locales/resources.js")) {
             return "locales-core";
-          }
-
-          if (
-            id.includes("/src/components/LLMSelection/") ||
-            id.includes("/src/constants/llmProviders.jsx")
-          ) {
-            return "llm-selection";
-          }
-
-          if (id.includes("/src/pages/OnboardingFlow/")) {
-            return "onboarding";
           }
 
           if (!id.includes("node_modules")) return;
