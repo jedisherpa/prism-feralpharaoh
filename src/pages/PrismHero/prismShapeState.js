@@ -5,7 +5,7 @@ export const PRISM_SHAPES = [
     nodeName: "Tetrahedron",
     description: "Four sharp triangular faces.",
     defaultExpression: "angry",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
   {
     id: "cube",
@@ -13,7 +13,7 @@ export const PRISM_SHAPES = [
     nodeName: "Cube",
     description: "Six square faces with rigid symmetry.",
     defaultExpression: "constrained",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
   {
     id: "octahedron",
@@ -21,7 +21,7 @@ export const PRISM_SHAPES = [
     nodeName: "Octahedron",
     description: "Eight triangular faces and clean focus.",
     defaultExpression: "focused",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
   {
     id: "dodecahedron",
@@ -29,7 +29,7 @@ export const PRISM_SHAPES = [
     nodeName: "Dodecahedron",
     description: "Twelve pentagonal faces in balanced harmony.",
     defaultExpression: "friendly",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
   {
     id: "icosahedron",
@@ -37,7 +37,7 @@ export const PRISM_SHAPES = [
     nodeName: "Icosahedron",
     description: "Twenty faces for denser, brighter presence.",
     defaultExpression: "expansive",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
   {
     id: "starTetrahedron",
@@ -45,7 +45,7 @@ export const PRISM_SHAPES = [
     nodeName: "StarTetrahedron",
     description: "Two interlocked tetrahedra in a mythic star.",
     defaultExpression: "mythic",
-    targetRadius: 1.22,
+    targetRadius: 1.58,
   },
 ];
 

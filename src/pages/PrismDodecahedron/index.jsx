@@ -61,7 +61,7 @@ const DEFAULT_MOTION = {
   spinX: 0,
   spinY: 0,
   spinZ: 0,
-  zoom: 1,
+  zoom: 1.16,
   speed: 1,
   tilt: 1,
   attention: 0.9,

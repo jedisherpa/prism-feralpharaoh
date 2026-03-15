@@ -684,15 +684,15 @@ export default function createPrismHeroScene(canvas, options = {}) {
     );
 
     const camera = new PerspectiveCamera(
-      coarsePointer ? 46 : 40,
+      coarsePointer ? 46 : 38,
       viewport.width / viewport.height,
       0.1,
       100
     );
     camera.position.set(
       0,
-      minimalStage ? 0.08 : 0.12,
-      enableScroll ? 6.5 : 5.1
+      minimalStage ? 0.18 : 0.12,
+      enableScroll ? 6.5 : 4.35
     );
 
     const pmremGenerator = new PMREMGenerator(renderer);
@@ -713,10 +713,13 @@ export default function createPrismHeroScene(canvas, options = {}) {
       side: DoubleSide,
       depthWrite: false,
     });
-    const shadowMesh = new Mesh(new CircleGeometry(1.45, 96), shadowMaterial);
+    const shadowMesh = new Mesh(
+      new CircleGeometry(minimalStage ? 1.22 : 1.45, 96),
+      shadowMaterial
+    );
     shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.set(0, -1.53, 0);
-    shadowMesh.scale.set(1.25, 0.68, 1);
+    shadowMesh.position.set(0, minimalStage ? -1.66 : -1.53, 0);
+    shadowMesh.scale.set(minimalStage ? 1.04 : 1.25, minimalStage ? 0.54 : 0.68, 1);
     stageGroup.add(shadowMesh);
 
     const pedestalMaterial = new MeshPhysicalMaterial({
@@ -727,10 +730,15 @@ export default function createPrismHeroScene(canvas, options = {}) {
       clearcoatRoughness: 0.44,
     });
     const pedestal = new Mesh(
-      new CylinderGeometry(1.08, 1.28, 0.34, 64),
+      new CylinderGeometry(
+        minimalStage ? 0.78 : 1.08,
+        minimalStage ? 0.98 : 1.28,
+        minimalStage ? 0.22 : 0.34,
+        64
+      ),
       pedestalMaterial
     );
-    pedestal.position.set(0, -1.78, 0);
+    pedestal.position.set(0, minimalStage ? -1.92 : -1.78, 0);
     pedestal.visible = minimalStage;
     stageGroup.add(pedestal);
 
@@ -757,8 +765,8 @@ export default function createPrismHeroScene(canvas, options = {}) {
     });
     const floorGlow = new Mesh(new CircleGeometry(2.0, 96), floorGlowMaterial);
     floorGlow.rotation.x = -Math.PI / 2;
-    floorGlow.position.set(0, minimalStage ? -1.61 : -2.11, 0);
-    floorGlow.scale.set(minimalStage ? 0.86 : 1, minimalStage ? 0.56 : 1, 1);
+    floorGlow.position.set(0, minimalStage ? -1.76 : -2.11, 0);
+    floorGlow.scale.set(minimalStage ? 0.72 : 1, minimalStage ? 0.46 : 1, 1);
     stageGroup.add(floorGlow);
 
     const floorRings = createFloorRings();
@@ -824,10 +832,10 @@ export default function createPrismHeroScene(canvas, options = {}) {
     });
 
     const prismAnchor = new Group();
-    prismAnchor.position.set(0, minimalStage ? -0.08 : 0.16, 0);
+    prismAnchor.position.set(0, minimalStage ? 0.16 : 0.16, 0);
     scene.add(prismAnchor);
 
-    const fallbackPrismGeometry = new DodecahedronGeometry(1.22, 0);
+    const fallbackPrismGeometry = new DodecahedronGeometry(1.58, 0);
     let breakupTransform = createBreakupTransform(
       fallbackPrismGeometry.clone()
     );
@@ -897,13 +905,14 @@ export default function createPrismHeroScene(canvas, options = {}) {
     });
 
     const prismBody = new Mesh(breakupTransform.geometry, prismMaterial);
+    prismBody.scale.setScalar(0.92);
     prismAnchor.add(prismBody);
 
     const prismFacetShell = new Mesh(
       breakupTransform.geometry,
       prismFacetShellMaterial
     );
-    prismFacetShell.scale.setScalar(0.9985);
+    prismFacetShell.scale.setScalar(1.12);
     prismFacetShell.renderOrder = 1;
     prismAnchor.add(prismFacetShell);
 
@@ -911,7 +920,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
       breakupTransform.geometry,
       innerShellMaterial
     );
-    prismInnerShell.scale.setScalar(0.965);
+    prismInnerShell.scale.setScalar(0.78);
     prismAnchor.add(prismInnerShell);
 
     const wireframeMaterial = new LineBasicMaterial({
@@ -923,7 +932,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
       wireframeGeometry,
       wireframeMaterial
     );
-    prismWireframe.scale.setScalar(1.0015);
+    prismWireframe.scale.setScalar(1.145);
     prismAnchor.add(prismWireframe);
 
     const coreMaterial = new MeshBasicMaterial({
@@ -1053,7 +1062,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
     const clock = new Clock();
     const basePrismPosition = {
       x: 0,
-      y: minimalStage ? -0.08 : 0.16,
+      y: minimalStage ? 0.16 : 0.16,
     };
 
     const normalizedInitialExpression = isPrismExpressionId(initialExpression)
@@ -2373,16 +2382,16 @@ export default function createPrismHeroScene(canvas, options = {}) {
         settleRoll +
         musicRoll;
       prismWireframe.scale.setScalar(
-        1.0015 +
+        1.145 +
           breakupFactor * 0.02 +
           musicBreakupAmount * 0.09 +
           musicBreakupPulse * 0.016
       );
       prismFacetShell.scale.setScalar(
-        0.9985 +
-          hoverMix * 0.0015 +
-          Math.max(settleWave, 0) * 0.0025 +
-          musicPulse * 0.002
+        1.12 +
+          hoverMix * 0.01 +
+          Math.max(settleWave, 0) * 0.014 +
+          musicPulse * 0.008
       );
 
       const jitterX =
@@ -2413,10 +2422,10 @@ export default function createPrismHeroScene(canvas, options = {}) {
         MathUtils.lerp(0, 0.28, scrollProgress) +
         pointer.x * (enableScroll ? 0.18 : 0.08) * Math.max(0.35, tiltFactor);
       camera.position.y =
-        MathUtils.lerp(minimalStage ? 0.08 : 0.12, -0.06, scrollProgress) +
+        MathUtils.lerp(minimalStage ? 0.18 : 0.12, -0.06, scrollProgress) +
         pointer.y * (enableScroll ? 0.1 : 0.06) * Math.max(0.35, tiltFactor);
       const baseCameraZ = MathUtils.lerp(
-        enableScroll ? 6.5 : 5.1,
+        enableScroll ? 6.5 : 4.35,
         2.45,
         scrollProgress
       );
