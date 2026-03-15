@@ -855,6 +855,29 @@ export default function createPrismHeroScene(canvas, options = {}) {
       envMapIntensity: 1.25,
     });
 
+    const prismFacetShellMaterial = new MeshPhysicalMaterial({
+      color: new Color("#F6EEE2"),
+      metalness: 0.08,
+      roughness: 0.18,
+      transmission: 0.16,
+      thickness: 1.1,
+      ior: 1.2,
+      clearcoat: 0.48,
+      clearcoatRoughness: 0.08,
+      transparent: true,
+      opacity: minimalStage ? 0.88 : 0.36,
+      side: DoubleSide,
+      depthWrite: true,
+      toneMapped: true,
+      flatShading: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+      envMapIntensity: 0.72,
+      emissive: new Color(COLORS.gold),
+      emissiveIntensity: 0.02,
+    });
+
     const innerShellMaterial = new MeshPhysicalMaterial({
       color: new Color("#FFFFFF"),
       roughness: 0.018,
@@ -875,6 +898,14 @@ export default function createPrismHeroScene(canvas, options = {}) {
 
     const prismBody = new Mesh(breakupTransform.geometry, prismMaterial);
     prismAnchor.add(prismBody);
+
+    const prismFacetShell = new Mesh(
+      breakupTransform.geometry,
+      prismFacetShellMaterial
+    );
+    prismFacetShell.scale.setScalar(0.9985);
+    prismFacetShell.renderOrder = 1;
+    prismAnchor.add(prismFacetShell);
 
     const prismInnerShell = new Mesh(
       breakupTransform.geometry,
@@ -1105,6 +1136,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
     };
     const intactMeshes = [
       prismBody,
+      prismFacetShell,
       prismInnerShell,
       prismWireframe,
       coreMesh,
@@ -1213,6 +1245,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
       auraGeometry = nextAuraGeometry;
 
       prismBody.geometry = breakupTransform.geometry;
+      prismFacetShell.geometry = breakupTransform.geometry;
       prismInnerShell.geometry = breakupTransform.geometry;
       prismWireframe.geometry = wireframeGeometry;
       coreMesh.geometry = coreGeometry;
@@ -1935,6 +1968,39 @@ export default function createPrismHeroScene(canvas, options = {}) {
             lookMix
           ) +
         hoverMix * 0.04;
+      if (minimalStage) {
+        innerShellMaterial.opacity *= 0.72;
+      }
+
+      prismFacetShellMaterial.color.copy(tempColors.glass);
+      prismFacetShellMaterial.color.lerp(tempColors.floor, minimalStage ? 0.18 : 0.1);
+      prismFacetShellMaterial.emissive.copy(tempColors.wire);
+      prismFacetShellMaterial.emissiveIntensity =
+        (minimalStage ? 0.03 : 0.015) +
+        hoverMix * 0.03 +
+        runtime.responseMix * 0.035 +
+        Math.max(settleWave, 0) * 0.02;
+      prismFacetShellMaterial.roughness = MathUtils.lerp(
+        minimalStage ? 0.22 : 0.18,
+        minimalStage ? 0.12 : 0.09,
+        reflectionMix
+      );
+      prismFacetShellMaterial.clearcoat = MathUtils.lerp(0.34, 0.68, reflectionMix);
+      prismFacetShellMaterial.clearcoatRoughness = MathUtils.lerp(
+        0.12,
+        0.05,
+        reflectionMix
+      );
+      prismFacetShellMaterial.opacity =
+        (minimalStage ? 0.78 : 0.28) +
+        hoverMix * 0.06 +
+        runtime.responseMix * 0.05 +
+        Math.max(settleWave, 0) * 0.03 +
+        musicPulse * 0.04;
+      prismFacetShellMaterial.transmission = minimalStage ? 0.08 : 0.14;
+      prismFacetShellMaterial.envMapIntensity = minimalStage
+        ? 0.58 + reflectionMix * 0.24
+        : 0.64 + reflectionMix * 0.34;
 
       wireframeMaterial.color.copy(tempColors.wire);
       wireframeMaterial.opacity =
@@ -1951,6 +2017,9 @@ export default function createPrismHeroScene(canvas, options = {}) {
           ) +
         hoverMix * 0.12 -
         breakupFactor * 0.16;
+      if (minimalStage) {
+        wireframeMaterial.opacity += 0.16;
+      }
 
       coreMaterial.color.copy(tempColors.core);
       coreAuraMaterial.color.copy(tempColors.aura);
@@ -2166,6 +2235,9 @@ export default function createPrismHeroScene(canvas, options = {}) {
         attentionMix * 0.05 +
         musicBass * 0.06 +
         musicTransient * 0.05;
+      if (minimalStage) {
+        coreMaterial.opacity *= 0.52;
+      }
       coreAuraMaterial.opacity =
         0.05 * glowFactor +
         pulse *
@@ -2183,6 +2255,9 @@ export default function createPrismHeroScene(canvas, options = {}) {
         Math.max(settleWave, 0) * 0.06 +
         musicPulse * 0.08 +
         musicSparkle * 0.05;
+      if (minimalStage) {
+        coreAuraMaterial.opacity *= 0.38;
+      }
       coreMesh.scale.setScalar(
         coreBaseScale *
           (MathUtils.lerp(0.94, 1.16, lookMix) +
@@ -2346,6 +2421,12 @@ export default function createPrismHeroScene(canvas, options = {}) {
           musicBreakupAmount * 0.09 +
           musicBreakupPulse * 0.016
       );
+      prismFacetShell.scale.setScalar(
+        0.9985 +
+          hoverMix * 0.0015 +
+          Math.max(settleWave, 0) * 0.0025 +
+          musicPulse * 0.002
+      );
 
       const jitterX =
         currentMode.value === "error"
@@ -2486,6 +2567,7 @@ export default function createPrismHeroScene(canvas, options = {}) {
       coreGeometry.dispose();
       auraGeometry.dispose();
       prismMaterial.dispose();
+      prismFacetShellMaterial.dispose();
       innerShellMaterial.dispose();
       wireframeMaterial.dispose();
       coreMaterial.dispose();
