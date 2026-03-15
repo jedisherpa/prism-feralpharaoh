@@ -442,6 +442,38 @@ export default function PrismDodecahedronPage() {
     ? playlist.findIndex((track) => track.id === currentTrack.id)
     : -1;
   const floatingWindowsEnabled = viewport.width > 920;
+  const expressionLabel =
+    EXPRESSION_OPTIONS.find((item) => item.id === expression)?.label ??
+    "Custom";
+  const shapeControlsLocked = transitionPhase !== "idle";
+  const musicDanceMode = getMusicDanceMode(musicSettings);
+  const musicDanceModeLabel =
+    MUSIC_DANCE_MODE_OPTIONS.find((item) => item.id === musicDanceMode)?.label ??
+    "Custom";
+  const libraryBadge =
+    libraryStatus === "ready"
+      ? `${libraryTracks.length} built-in tracks`
+      : libraryStatus === "empty"
+        ? "No bundled tracks"
+        : libraryStatus === "failed"
+          ? "Library unavailable"
+          : "Loading library";
+  const trackCountLabel = playlist.length
+    ? `${currentTrackIndex + 1 || 1}/${playlist.length}`
+    : "No tracks";
+  const canControlPlayback = Boolean(currentTrack || playlist.length);
+  const controlPanels = [
+    { id: "lab", label: "Lab", meta: expressionLabel },
+    { id: "motion", label: "Motion", meta: "Axis + behavior" },
+    {
+      id: "music",
+      label: "Music",
+      meta: playlist.length
+        ? `${playlist.length} tracks / ${musicDanceModeLabel}`
+        : `${musicDanceModeLabel} / ${libraryBadge}`,
+    },
+    { id: "debug", label: "Debug", meta: "lil-gui" },
+  ];
 
   function updateTuning(key, value) {
     startTransition(() => {
@@ -1215,39 +1247,6 @@ export default function PrismDodecahedronPage() {
     transitionPhase,
     tuning,
   ]);
-
-  const expressionLabel =
-    EXPRESSION_OPTIONS.find((item) => item.id === expression)?.label ??
-    "Custom";
-  const shapeControlsLocked = transitionPhase !== "idle";
-  const musicDanceMode = getMusicDanceMode(musicSettings);
-  const musicDanceModeLabel =
-    MUSIC_DANCE_MODE_OPTIONS.find((item) => item.id === musicDanceMode)?.label ??
-    "Custom";
-  const libraryBadge =
-    libraryStatus === "ready"
-      ? `${libraryTracks.length} built-in tracks`
-      : libraryStatus === "empty"
-        ? "No bundled tracks"
-        : libraryStatus === "failed"
-          ? "Library unavailable"
-          : "Loading library";
-  const trackCountLabel = playlist.length
-    ? `${currentTrackIndex + 1 || 1}/${playlist.length}`
-    : "No tracks";
-  const canControlPlayback = Boolean(currentTrack || playlist.length);
-  const controlPanels = [
-    { id: "lab", label: "Lab", meta: expressionLabel },
-    { id: "motion", label: "Motion", meta: "Axis + behavior" },
-    {
-      id: "music",
-      label: "Music",
-      meta: playlist.length
-        ? `${playlist.length} tracks / ${musicDanceModeLabel}`
-        : `${musicDanceModeLabel} / ${libraryBadge}`,
-    },
-    { id: "debug", label: "Debug", meta: "lil-gui" },
-  ];
 
   const renderLabSection = (sectionId, title, meta, children) => {
     const isOpen = labSectionVisibility[sectionId];
