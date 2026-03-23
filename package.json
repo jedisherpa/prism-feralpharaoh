@@ -1,5 +1,6 @@
 {
-  "name": "anything-llm-frontend",
+  "name": "prism-feralpharaoh",
+  "description": "Standalone Prism Feral Pharaoh Vite frontend",
   "private": false,
   "license": "MIT",
   "type": "module",
