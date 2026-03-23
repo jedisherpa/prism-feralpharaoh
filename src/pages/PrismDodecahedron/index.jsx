@@ -19,6 +19,8 @@ import {
 import { loadBundledPlaylistManifest } from "@/pages/PrismDodecahedron/musicLibrary";
 import "./index.css";
 
+const MUSIC_ENABLED = false;
+
 const PRISM_STATES = [
   {
     id: "idle",
@@ -61,7 +63,7 @@ const DEFAULT_MOTION = {
   spinX: 0,
   spinY: 0,
   spinZ: 0,
-  zoom: 1.16,
+  zoom: 1,
   speed: 1,
   tilt: 1,
   attention: 0.9,
@@ -107,7 +109,7 @@ const MOTION_GROUPS = [
 const DEFAULT_PANEL_VISIBILITY = {
   lab: true,
   motion: true,
-  music: true,
+  music: false,
   debug: true,
 };
 
@@ -473,7 +475,7 @@ export default function PrismDodecahedronPage() {
         : `${musicDanceModeLabel} / ${libraryBadge}`,
     },
     { id: "debug", label: "Debug", meta: "lil-gui" },
-  ];
+  ].filter((panel) => MUSIC_ENABLED || panel.id !== "music");
 
   function updateTuning(key, value) {
     startTransition(() => {
@@ -1338,11 +1340,13 @@ export default function PrismDodecahedronPage() {
         className={`prism-dodecahedron-debug-gui${panelVisibility.debug && !relaxMode ? "" : " is-hidden"}`}
       />
 
-      <audio
-        ref={audioRef}
-        className="prism-dodecahedron-audio is-hidden"
-        preload="metadata"
-      />
+      {MUSIC_ENABLED ? (
+        <audio
+          ref={audioRef}
+          className="prism-dodecahedron-audio is-hidden"
+          preload="metadata"
+        />
+      ) : null}
 
       <main className="prism-dodecahedron-overlay">
         <header
@@ -1654,7 +1658,7 @@ export default function PrismDodecahedronPage() {
             })
           : null}
 
-        {!relaxMode && panelVisibility.music
+        {MUSIC_ENABLED && !relaxMode && panelVisibility.music
           ? renderFloatingPanel({
               panelId: "music",
               className: "prism-dodecahedron-music-panel",
@@ -1889,7 +1893,7 @@ export default function PrismDodecahedronPage() {
           </div>
         ) : null}
 
-        {relaxMode ? (
+        {MUSIC_ENABLED && relaxMode ? (
           <div
             className="prism-dodecahedron-relax-transport"
             aria-label="Relax mode playback controls"
